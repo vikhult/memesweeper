@@ -121,9 +121,12 @@ void MemeField::Tile::SetNeighborMemeCount( int memeCount )
 	nNeighborMemes = memeCount;
 }
 
-MemeField::MemeField( const Vei2& center,int nMemes )
+MemeField::MemeField( const Vei2& center,int nMemes, int tilesWide, int tilesHigh)
 	:
-	topLeft( center - Vei2( width * SpriteCodex::tileSize,height * SpriteCodex::tileSize ) / 2 )
+	topLeft( center - Vei2( width * SpriteCodex::tileSize,height * SpriteCodex::tileSize ) / 2 ),
+	width( tilesWide),
+	height( tilesHigh),
+	field( new Tile[int(width * height)] )
 {
 	assert( nMemes > 0 && nMemes < width * height );
 	std::random_device rd;
@@ -275,13 +278,16 @@ int MemeField::CountNeighborMemes( const Vei2 & gridPos )
 
 bool MemeField::GameIsWon() const
 {
-	for( const Tile& t : field )
+	Tile* t = field;
+	for(int i = 0; i < width * height; i++)
 	{
-		if( (t.HasMeme() && !t.IsFlagged()) ||
-			(!t.HasMeme() && !t.IsRevealed()) )
+		if( (t->HasMeme() && !t->IsFlagged()) ||
+			(!t->HasMeme() && !t->IsRevealed()) )
 		{
 			return false;
 		}
+		t++;
 	}
+	delete[] field;
 	return true;
 }
