@@ -21,6 +21,7 @@
 #include "MainWindow.h"
 #include "Game.h"
 #include "SpriteCodex.h"
+#include <assert.h>
 
 Game::Game(MainWindow& wnd)
 	:
@@ -67,9 +68,11 @@ void Game::UpdateModel()
 			}
 			else
 			{
-				// TODO implement a pause
-				delete field;
-				state = State::SelectionMenu;
+				if (e.GetType() == Mouse::Event::Type::LPress)
+				{
+					DestroyField();
+					state = State::SelectionMenu;
+				}
 			}
 		}
 		else
@@ -78,22 +81,36 @@ void Game::UpdateModel()
 			switch( s )
 			{
 			case SelectionMenu::Size::Small: 
-				field = new MemeField(gfx.GetRect().GetCenter(), 4, 8, 6);
+				CreateField(8, 4, 9);
 				state = State::Memesweeper;
 				break;
 
 			case SelectionMenu::Size::Medium: 
-				field = new MemeField(gfx.GetRect().GetCenter(), 9, 16, 12);
+				CreateField(16, 8, 9);
 				state = State::Memesweeper;
 				break;
 
 			case SelectionMenu::Size::Large: 
-				field = new MemeField(gfx.GetRect().GetCenter(), 21, 24, 18);
+				CreateField(24, 18, 21);
 				state = State::Memesweeper;
 				break;
 			}
 		}
 	}
+}
+
+void Game::CreateField(int width, int height, int nMemes)
+{
+	assert(field == nullptr);
+	field = new MemeField(gfx.GetRect().GetCenter(), nMemes, width, height);
+}
+
+void Game::DestroyField()
+{
+	// unallocate the Tile array from the MemeField obj.
+	field->FreeResources();
+	delete field;
+	field = nullptr;
 }
 
 void Game::ComposeFrame()
