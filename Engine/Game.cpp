@@ -65,6 +65,11 @@ void Game::UpdateModel()
 					}
 				}
 			}
+			else
+			{
+				// TODO implement a pause
+				state = State::SelectionMenu;
+			}
 		}
 		else
 		{
